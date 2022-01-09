@@ -174,15 +174,12 @@ In one sheet, you should consider adding a subkey to differ each other like the 
 
 ## cr in C# development
 
-This is built in Go v1.17.5
+This is built in .NET 6.0
 
 maybe you need `sudo` access
 
-- `go mod init github.com/Cryptic-Resolver/cr_Go` to add `go.mod`
-- `go get -u github.com/BurntSushi/toml` to add dependency in `go.mod` and generates `go.sum`
-- `go run ./cr.go`
-- `./build.ps1`
-- `./test-scoop.ps1`  
+- `dotnet new console`
+- `dotnet run`
 
 
 
