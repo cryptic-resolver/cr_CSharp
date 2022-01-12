@@ -76,8 +76,8 @@ void add_default_sheet_if_none_exist(){
 		foreach(var (key, value) in CRYPTIC_DEFAULT_SHEETS) {
 			Console.WriteLine("cr: Pulling cryptic_" + key + "...");
             
-            string command = $"/C git -C {CRYPTIC_RESOLVER_HOME} clone {value} -q";
-            var proc = System.Diagnostics.Process.Start("cmd", command);
+            string command = $"-C {CRYPTIC_RESOLVER_HOME} clone {value} -q";
+            var proc = System.Diagnostics.Process.Start("git", command);    // no need to use "cmd" /C git ...." 
             // must wait
             proc.WaitForExit();
             var exitCode = proc.ExitCode;
@@ -95,7 +95,33 @@ void add_default_sheet_if_none_exist(){
 
 
 void update_sheets(string sheet_repo){
-    Console.WriteLine("TODO: update sheets");
+
+	add_default_sheet_if_none_exist();
+
+	if(sheet_repo == "") {
+		Console.WriteLine("cr: Updating all sheets...");
+
+		var dirs = Directory.GetDirectories(CRYPTIC_RESOLVER_HOME);
+
+		foreach(var dir in dirs) {
+            // path to dirname
+			string sheet = Path.GetFileName(dir);   // This api name is shit
+			Console.WriteLine("cr: Wait to update {0}...", sheet);
+            string command = $"-C  {CRYPTIC_RESOLVER_HOME}/{sheet} pull -q";
+			var proc = System.Diagnostics.Process.Start("git",command);
+			proc.WaitForExit();
+		}
+		Console.WriteLine("cr: Update done");
+	
+	} else {
+		Console.WriteLine("cr: Adding new sheet...");
+        string command = $"-C ${CRYPTIC_RESOLVER_HOME} clone {sheet_repo} -q";
+		var proc = System.Diagnostics.Process.Start("git", command);
+		proc.WaitForExit();
+		Console.WriteLine("cr: Add new sheet done");
+	}
+
+
 }
 
 void solve_word(string word_2_solve){
