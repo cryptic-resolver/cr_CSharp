@@ -182,9 +182,14 @@ How to manage dependecy:
 
 ```bash
 # control `cr.csproj`
+# For example
 dotnet add package Pastel
 dotnet remove pacakge Pastel
 ```
+
+**Notice**: There's a bug in the dependecy `Carbon.Toml`, it can't parse `''` string in `SEE` key, for example you can see the word `mop`'s `see(see also)` in `m.toml` in the `cryptic_computer` sheet. I think this is because
+1. the lib is only compatible with an old-version TOML language spec
+2. it's a bug the lib author doesn't notice at present
 
 - `dotnet new console`
 - `dotnet run -- emacs`

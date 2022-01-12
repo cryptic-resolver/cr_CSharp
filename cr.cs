@@ -117,7 +117,7 @@ void update_sheets(string sheet_repo){
 	
 	} else {
 		Console.WriteLine("cr: Adding new sheet...");
-        string command = $"-C ${CRYPTIC_RESOLVER_HOME} clone {sheet_repo} -q";
+        string command = $"-C {CRYPTIC_RESOLVER_HOME} clone {sheet_repo} -q";
 		var proc = System.Diagnostics.Process.Start("git", command);
 		proc.WaitForExit();
 		Console.WriteLine("cr: Add new sheet done");
@@ -371,7 +371,7 @@ bool lookup(string sheet, string file, string word) {
 			pp_info(reference);
 			// last meaning doesn't show this separate line
 			if (info_names[info_names.Count-1] != meaning ){
-				Console.Write(blue(bold("OR")), "\n");
+				Console.WriteLine(blue(bold("OR")), "\n");
 			}
 		}
 
@@ -482,7 +482,6 @@ if(arg_num < 1) {
 	arg = args[0];
 }
 
-// Console.WriteLine($"{arg_num} {arg}"); // DEBUG
 
 switch (arg) {
 case "":
