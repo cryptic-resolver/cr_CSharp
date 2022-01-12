@@ -358,7 +358,7 @@ bool lookup(string sheet, string file, string word) {
     //
 
     List<string> info_names = new List<string>();   // must be intialized in C#
-	foreach(var v in info.ToArrayOf<string>()) {    // yes, info is TOMLValue and can transformed to a table(aa)
+	foreach(var v in info.Keys ) {    // yes, info is TOMLValue and can transformed to a table(aa)
 		info_names.Add(v);
 	}
 
@@ -370,7 +370,7 @@ bool lookup(string sheet, string file, string word) {
 			Carbon.Json.JsonNode reference = multi_ref[meaning];
 			pp_info(reference);
 			// last meaning doesn't show this separate line
-			if (info_names[-1] != meaning ){
+			if (info_names[info_names.Count-1] != meaning ){
 				Console.Write(blue(bold("OR")), "\n");
 			}
 		}
