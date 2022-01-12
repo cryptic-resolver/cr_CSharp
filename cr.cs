@@ -36,12 +36,12 @@ const string CRYPTIC_VERSION = "1.0.0";
 // 
 // It's same as in NodeJS
 
-// string bold(string str)       { return String.Format("\x1b[1m{0}\x1b[0m",str); }
+string bold(string str)       { return String.Format("\x1b[1m{0}\x1b[0m",str); }
 string underline(string str)  { return String.Format("\x1b[4m${0}\x1b[0m",str); }
 string red(string str)        { return String.Format("\x1b[31m${0}\x1b[0m",str); }
 string green(string str)      { return String.Format("\x1b[32m${0}\x1b[0m",str); }
 // string yellow(string str)     { return String.Format("\x1b[33m${0}\x1b[0m",str); }
-// string blue(string str)       { return String.Format("\x1b[34m${0}\x1b[0m",str); }
+string blue(string str)       { return String.Format("\x1b[34m${0}\x1b[0m",str); }
 string purple(string str)     { return String.Format("\x1b[35m${0}\x1b[0m",str); }
 // string cyan(string str)       { return String.Format("\x1b[36m${0}\x1b[0m",str); }
 
@@ -250,6 +250,128 @@ bool directly_lookup(string sheet, string file, string word) {
 
 
 
+
+//  Lookup the given word in a dictionary (a toml file in a sheet) and also print.
+//  The core idea is that:
+//
+//  1. if the word is `same` with another synonym, it will directly jump to
+//    a word in this sheet, but maybe a different dictionary
+//
+//  2. load the toml file and check whether it has the only one meaning.
+//    2.1 If yes, then just print it using `pp_info`
+//    2.2 If not, then collect all the meanings of the word, and use `pp_info`
+//
+bool lookup(string sheet, string file, string word) {
+
+	// Only one meaning
+
+	Carbon.Json.JsonObject dict;
+
+	dict = load_dictionary(sheet, file);
+
+    if(dict == new Carbon.Json.JsonObject(){}) {
+        return false;
+	}
+
+	//  We firstly want keys in toml be case-insenstive, but later in 2021/10/26 I found it caused problems.
+	// So I decide to add a new must-have format member: `disp`
+	// This will display the word in its traditional form.
+	// Then, all the keywords can be downcase.
+
+	Carbon.Json.JsonNode infonode;
+
+	// check whether the key is in it
+    if (dict.ContainsKey(word)){
+        infonode = dict[word]; // Directly hash it
+	} else {
+		return false;
+	}
+
+	// Warn user if the info is empty. For example:
+	//   emacs = { }
+    var info = infonode.As<Carbon.Json.JsonObject>();
+	if (info == new Carbon.Json.JsonObject(){}) {
+		string str = String.Format(@"WARN: Lack of everything of the given word. \n
+	Please consider fixing this in the sheet `%s`", sheet);
+		Console.WriteLine(red(str));
+		Environment.Exit(0);
+	}
+
+	// Check whether it's a synonym for anther word
+	// If yes, we should lookup into this sheet again, but maybe with a different file
+	
+	// Console.WriteLine(info.table); //DEBUG
+
+	string same;
+	if(info.ContainsKey("same")){
+		same = (string)info["same"];
+		pp_sheet(sheet);
+		// point out to user, this is a jump
+		Console.WriteLine(blue(bold(word)) + " redirects to " + blue(bold(same)));
+
+		// Explicitly convert it to downcase.
+		// In case the dictionary maintainer redirects to an uppercase word by mistake.
+		same = same.ToLower();
+		
+		// no need to load dictionary again
+		if (word.ToLower()[0] == same[0]) {	// same is just "a" "b" "c" "d" , etc ...
+			
+			Carbon.Json.JsonNode same_info = dict[same];
+			
+			if (same_info == null) { // Need repair
+				string str = "WARN: Synonym jumps to the wrong place at `" + same + "`\n" +
+					"	Please consider fixing this in " + same[0] +
+					".toml of the sheet `" + sheet + "`";
+
+				Console.WriteLine(red(str));
+				return false;
+			} else {
+				pp_info(same_info);
+				return true;
+			}
+		} else {
+			return directly_lookup(sheet, same[0].ToString(), same);
+		}
+	}
+
+	// Check if it's only one meaning
+
+    if (info.ContainsKey("desc")) {
+		pp_sheet(sheet);
+		pp_info(info);
+		return true;
+	}
+
+	// Multiple meanings in one sheet
+
+	// string[] info_names; 
+    // arrays are statically allocated in C#, so the way above can't be done;(But you can do it in D)
+    //
+
+    List<string> info_names = new List<string>();
+	foreach(var v in info.ToArrayOf<string>()) {// yes, info is TOMLValue and can transformed to a table(aa)
+		info_names.Add(v);
+	}
+
+	if (info_names.Count != 0) {
+		pp_sheet(sheet);
+
+		foreach(var meaning in info_names) {
+			Carbon.Json.JsonNode multi_ref = dict[word];
+			Carbon.Json.JsonNode reference = multi_ref[meaning];
+			pp_info(reference);
+			// last meaning doesn't show this separate line
+			if (info_names[-1] != meaning ){
+				Console.Write(blue(bold("OR")), "\n");
+			}
+		}
+
+		return true;
+
+	} else {
+		return false;
+	}
+}
 
 
 
