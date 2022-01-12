@@ -178,6 +178,14 @@ This is built in .NET 6.0
 
 maybe you need `sudo` access
 
+How to manage dependecy:
+
+```bash
+# control `cr.csproj`
+dotnet add package Pastel
+dotnet remove pacakge Pastel
+```
+
 - `dotnet new console`
 - `dotnet run -- emacs`
 

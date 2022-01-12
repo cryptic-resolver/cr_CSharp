@@ -10,6 +10,12 @@
 //
 //  ---------------------------------------------------
 
+
+// We don't use it for color anymore
+// using Pastel;
+// using System.Drawing;   // For `Color` class
+
+
 // cannot be const
 string CRYPTIC_RESOLVER_HOME = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
@@ -23,6 +29,27 @@ Dictionary<string,string> CRYPTIC_DEFAULT_SHEETS = new Dictionary<string, string
 };
 
 const string CRYPTIC_VERSION = "1.0.0";
+
+//
+// helper: for color
+// 
+// It's same as in NodeJS
+
+string bold(string str)       { return String.Format("\x1b[1m{0}\x1b[0m",str); }
+string underline(string str)  { return String.Format("\x1b[4m${0}\x1b[0m",str); }
+string red(string str)        { return String.Format("\x1b[31m${0}\x1b[0m",str); }
+string green(string str)      { return String.Format("\x1b[32m${0}\x1b[0m",str); }
+string yellow(string str)     { return String.Format("\x1b[33m${0}\x1b[0m",str); }
+string blue(string str)       { return String.Format("\x1b[34m${0}\x1b[0m",str); }
+string purple(string str)     { return String.Format("\x1b[35m${0}\x1b[0m",str); }
+string cyan(string str)       { return String.Format("\x1b[36m${0}\x1b[0m",str); }
+
+
+Console.WriteLine(bold("haha"));
+Console.WriteLine(underline("haha"));
+Console.WriteLine(red("haha"));
+Console.WriteLine(blue("haha"));
+Console.WriteLine(purple("haha"));
 
 
 void add_default_sheet_if_none_exist(){
