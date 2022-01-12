@@ -38,13 +38,13 @@ const string CRYPTIC_VERSION = "1.0.0";
 // It's same as in NodeJS
 
 string bold(string str)       { return String.Format("\x1b[1m{0}\x1b[0m",str); }
-string underline(string str)  { return String.Format("\x1b[4m${0}\x1b[0m",str); }
-string red(string str)        { return String.Format("\x1b[31m${0}\x1b[0m",str); }
-string green(string str)      { return String.Format("\x1b[32m${0}\x1b[0m",str); }
-// string yellow(string str)     { return String.Format("\x1b[33m${0}\x1b[0m",str); }
-string blue(string str)       { return String.Format("\x1b[34m${0}\x1b[0m",str); }
-string purple(string str)     { return String.Format("\x1b[35m${0}\x1b[0m",str); }
-// string cyan(string str)       { return String.Format("\x1b[36m${0}\x1b[0m",str); }
+string underline(string str)  { return String.Format("\x1b[4m{0}\x1b[0m",str); }
+string red(string str)        { return String.Format("\x1b[31m{0}\x1b[0m",str); }
+string green(string str)      { return String.Format("\x1b[32m{0}\x1b[0m",str); }
+// string yellow(string str)     { return String.Format("\x1b[33m{0}\x1b[0m",str); }
+string blue(string str)       { return String.Format("\x1b[34m{0}\x1b[0m",str); }
+string purple(string str)     { return String.Format("\x1b[35m{0}\x1b[0m",str); }
+// string cyan(string str)       { return String.Format("\x1b[36m{0}\x1b[0m",str); }
 
 
 //
@@ -154,7 +154,15 @@ Carbon.Json.JsonObject load_dictionary(string path, string file) {
 // Pretty print the info of the given word
 void pp_info(Carbon.Json.JsonNode infonode){
 
-    var info = infonode.As<Carbon.Json.JsonObject>();
+    // This will make everything empty
+    // var info = infonode.As<Carbon.Json.JsonObject>();
+    // This is the most important code in this program!!!
+    // Becaouse we lack of Carbon.Toml documents
+
+    var info = (Carbon.Json.JsonObject)infonode;
+
+
+
 	// We should convert disp, desc, full into string
 
 	// can't directly cast TOMLValue to string
@@ -290,7 +298,7 @@ bool lookup(string sheet, string file, string word) {
 
 	// Warn user if the info is empty. For example:
 	//   emacs = { }
-    var info = infonode.As<Carbon.Json.JsonObject>();
+    var info = (Carbon.Json.JsonObject)infonode;
 	if (info == new Carbon.Json.JsonObject(){}) {
 		string str = String.Format(@"WARN: Lack of everything of the given word. \n
 	Please consider fixing this in the sheet `%s`", sheet);
@@ -350,7 +358,7 @@ bool lookup(string sheet, string file, string word) {
     //
 
     List<string> info_names = new List<string>();   // must be intialized in C#
-	foreach(var v in info.ToArrayOf<string>()) {// yes, info is TOMLValue and can transformed to a table(aa)
+	foreach(var v in info.ToArrayOf<string>()) {    // yes, info is TOMLValue and can transformed to a table(aa)
 		info_names.Add(v);
 	}
 
