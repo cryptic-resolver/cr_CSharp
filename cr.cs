@@ -137,7 +137,7 @@ Carbon.Json.JsonObject load_dictionary(string path, string file) {
 	string toml_file = $"{CRYPTIC_RESOLVER_HOME}/{path}/{file}.toml";
 
 	if (! File.Exists(toml_file)) {
-		var emptyDoc = new Carbon.Json.JsonObject{};
+		var emptyDoc = new Carbon.Json.JsonObject{}; // return null will invoke a warning when built
         return emptyDoc;
 	} else {
         string str = File.ReadAllText(toml_file);
@@ -151,8 +151,9 @@ Carbon.Json.JsonObject load_dictionary(string path, string file) {
 
 
 // Pretty print the info of the given word
-void pp_info(Carbon.Json.JsonObject info ){
+void pp_info(Carbon.Json.JsonNode infonode){
 
+    var info = infonode.As<Carbon.Json.JsonObject>();
 	// We should convert disp, desc, full into string
 
 	// can't directly cast TOMLValue to string
@@ -189,6 +190,66 @@ void pp_info(Carbon.Json.JsonObject info ){
 void pp_sheet(string sheet) {
 	Console.WriteLine(green("From: " + sheet));
 }
+
+
+
+
+//  Used for synonym jump
+//  Because we absolutely jump to a must-have word
+//  So we can directly lookup to it
+//
+//  Notice that, we must jump to a specific word definition
+//  So in the toml file, you must specify the precise word.
+//  If it has multiple meanings, for example
+//
+//    [blah]
+//    same = "XDG"  # this is wrong
+//
+//    [blah]
+//    same = "XDG.Download" # this is right
+bool directly_lookup(string sheet, string file, string word) {
+
+	Carbon.Json.JsonObject dict;
+
+	dict = load_dictionary(sheet, file.ToLower()); // std.string: toLower
+
+	if(dict == new Carbon.Json.JsonObject(){}) {
+		Console.WriteLine("WARN: Synonym jumps to a wrong place");
+		Environment.Exit(0);
+	}
+
+	string[] words = word.Split("."); // [XDG Download]
+	string dictword = words[0].ToLower();       // XDG [Download]
+    
+    Carbon.Json.JsonNode info;
+
+	if (words.Length == 1) { // [HEHE]
+		info = dict[dictword];
+
+	} else { //  [XDG Download]
+		string explain = words[1];
+		Carbon.Json.JsonNode indirect_info = dict[dictword];
+		info = indirect_info[explain];
+	}
+
+	// Warn user this is the toml maintainer's fault
+	// the info map is empty
+	if (info == null) {
+		string str = @"WARN: Synonym jumps to a wrong place at `%s` \n 
+	Please consider fixing this in `%s.toml` of the sheet `%s`";
+
+		string redstr = red(String.Format(str, word, file.ToLower(), sheet));
+
+		Console.WriteLine(redstr);
+		Environment.Exit(0); // not portable??
+	}
+
+	pp_info(info);
+	return true; // always true
+}
+
+
+
 
 
 
