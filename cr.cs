@@ -10,9 +10,19 @@
 //
 //  ---------------------------------------------------
 
+// cannot be const
+string CRYPTIC_RESOLVER_HOME = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+// or use var
+Dictionary<string,string> CRYPTIC_DEFAULT_SHEETS = new Dictionary<string, string> {
+	["computer"]= "https://github.com/cryptic-resolver/cryptic_computer.git",
+	["common"]=   "https://github.com/cryptic-resolver/cryptic_common.git",
+	["science"]=  "https://github.com/cryptic-resolver/cryptic_science.git",
+	["economy"]=  "https://github.com/cryptic-resolver/cryptic_economy.git",
+	["medicine"]= "https://github.com/cryptic-resolver/cryptic_medicine.git"
+};
+
 const string CRYPTIC_VERSION = "1.0.0";
-
-
 
 
 void add_default_sheet_if_none_exist(){

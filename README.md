@@ -179,7 +179,7 @@ This is built in .NET 6.0
 maybe you need `sudo` access
 
 - `dotnet new console`
-- `dotnet run`
+- `dotnet run -- emacs`
 
 
 
