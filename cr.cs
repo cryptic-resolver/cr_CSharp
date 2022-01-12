@@ -16,6 +16,7 @@
 // using System.Drawing;   // For `Color` class
 
 using Carbon.Toml;
+using System.Text.RegularExpressions;
 
 // cannot be const
 string CRYPTIC_RESOLVER_HOME = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\.cryptic-resolver";
@@ -348,7 +349,7 @@ bool lookup(string sheet, string file, string word) {
     // arrays are statically allocated in C#, so the way above can't be done;(But you can do it in D)
     //
 
-    List<string> info_names = new List<string>();
+    List<string> info_names = new List<string>();   // must be intialized in C#
 	foreach(var v in info.ToArrayOf<string>()) {// yes, info is TOMLValue and can transformed to a table(aa)
 		info_names.Add(v);
 	}
@@ -375,11 +376,74 @@ bool lookup(string sheet, string file, string word) {
 
 
 
-
-
+//  The main logic of `cr`
+//    1. Search the default's first sheet first
+//    2. Search the rest sheets in the cryptic sheets default dir
+//
+//  The `search` procedure is done via the `lookup` function. It
+//  will print the info while finding. If `lookup` always return
+//  false then means lacking of this word in our sheets. So a wel-
+//  comed contribution is prinetd on the screen.
 void solve_word(string word_2_solve){
-    Console.WriteLine("TODO: solve word");
+
+	add_default_sheet_if_none_exist();
+
+	string word = word_2_solve.ToLower();
+	// The index is the toml file we'll look into
+
+	string index = word[0].ToString();
+
+    
+    Regex rg = new Regex(@"\d");  
+    MatchCollection matched = rg.Matches(index); 
+    if(matched.Count>0){
+        index = "0123456789";
+    }
+	// Default's first should be 1st to consider
+	string first_sheet = "cryptic_computer";
+
+	// cache lookup results
+	// bool slice
+	List<bool> results = new List<bool>(); // must be intialized in C#
+	results.Add(lookup(first_sheet, index, word));
+	// return if result == true # We should consider all sheets
+
+	// Then else
+	var dirs = Directory.GetDirectories(CRYPTIC_RESOLVER_HOME);
+	foreach(var dir in dirs){
+		string sheet = Path.GetFileName(dir);
+		if(sheet != first_sheet) {
+			results.Add(lookup(sheet, index, word));
+			// continue if result == false # We should consider all sheets
+		}
+	}
+
+
+	bool result_flag = false;
+	foreach(var v in results) {
+		if(v == true) {
+			result_flag = true;
+		}
+	}
+
+	if(result_flag != true) {
+		Console.WriteLine("cr: Not found anything.\n\n" +
+			"You may use `cr -u` to update the sheets.\n" +
+			"Or you could contribute to our sheets: Thanks!");
+
+		Console.WriteLine("    1. computer:  {0}", CRYPTIC_DEFAULT_SHEETS["computer"]);
+		Console.WriteLine("    2. common:    {0}", CRYPTIC_DEFAULT_SHEETS["common"]);
+		Console.WriteLine("    3. science:	 {0}", CRYPTIC_DEFAULT_SHEETS["science"]);
+		Console.WriteLine("    4. economy:   {0}", CRYPTIC_DEFAULT_SHEETS["economy"]);
+		Console.WriteLine("    5. medicine:  {0}", CRYPTIC_DEFAULT_SHEETS["medicine"]);
+		Console.WriteLine();
+
+	} else {
+		return;
+	}
+
 }
+
 
 
 void help() 
