@@ -15,6 +15,7 @@
 // using Pastel;
 // using System.Drawing;   // For `Color` class
 
+using Carbon.Toml;
 
 // cannot be const
 string CRYPTIC_RESOLVER_HOME = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\.cryptic-resolver";
@@ -36,12 +37,12 @@ const string CRYPTIC_VERSION = "1.0.0";
 // It's same as in NodeJS
 
 // string bold(string str)       { return String.Format("\x1b[1m{0}\x1b[0m",str); }
-// string underline(string str)  { return String.Format("\x1b[4m${0}\x1b[0m",str); }
-// string red(string str)        { return String.Format("\x1b[31m${0}\x1b[0m",str); }
-// string green(string str)      { return String.Format("\x1b[32m${0}\x1b[0m",str); }
+string underline(string str)  { return String.Format("\x1b[4m${0}\x1b[0m",str); }
+string red(string str)        { return String.Format("\x1b[31m${0}\x1b[0m",str); }
+string green(string str)      { return String.Format("\x1b[32m${0}\x1b[0m",str); }
 // string yellow(string str)     { return String.Format("\x1b[33m${0}\x1b[0m",str); }
 // string blue(string str)       { return String.Format("\x1b[34m${0}\x1b[0m",str); }
-// string purple(string str)     { return String.Format("\x1b[35m${0}\x1b[0m",str); }
+string purple(string str)     { return String.Format("\x1b[35m${0}\x1b[0m",str); }
 // string cyan(string str)       { return String.Format("\x1b[36m${0}\x1b[0m",str); }
 
 
@@ -123,6 +124,75 @@ void update_sheets(string sheet_repo){
 
 
 }
+
+
+// path: sheet name, eg. cryptic_computer
+// file: dict(file) name, eg. a,b,c,d
+// dict: the concrete dict
+// 		 var dict map[string]interface{}
+// 
+// We can't use pointer of an managed type
+Carbon.Json.JsonObject load_dictionary(string path, string file) {
+
+	string toml_file = $"{CRYPTIC_RESOLVER_HOME}/{path}/{file}.toml";
+
+	if (! File.Exists(toml_file)) {
+		var emptyDoc = new Carbon.Json.JsonObject{};
+        return emptyDoc;
+	} else {
+        string str = File.ReadAllText(toml_file);
+		var doc = Toml.Parse(str);
+		return doc;
+	}
+
+}
+
+
+
+
+// Pretty print the info of the given word
+void pp_info(Carbon.Json.JsonObject info ){
+
+	// We should convert disp, desc, full into string
+
+	// can't directly cast TOMLValue to string
+	string disp;
+	if (info.ContainsKey("disp")){
+		disp = (string)info["disp"];
+	}else {
+        disp = red("No name!");
+	}
+
+	Console.WriteLine("\n  {0}: {1}", disp, (string)info["desc"]);
+
+    if (info.ContainsKey("full")){
+		Console.WriteLine("\n  {0}", (string)info["full"]);
+	}
+
+	// see is string[]
+    if (info.ContainsKey("see")){
+		string[] see = info["see"].ToArrayOf<string>(); // Notice here
+
+		Console.Write("\n{0} ", purple("SEE ALSO "));
+
+		foreach(var val in see) {
+			Console.Write(underline(val) );
+		}
+
+		Console.WriteLine();
+	}
+	Console.WriteLine();
+}
+
+
+// Print default cryptic_ sheets
+void pp_sheet(string sheet) {
+	Console.WriteLine(green("From: " + sheet));
+}
+
+
+
+
 
 void solve_word(string word_2_solve){
     Console.WriteLine("TODO: solve word");
