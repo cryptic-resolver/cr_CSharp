@@ -32,22 +32,8 @@ Not only can it be used in the computer filed, but also you can use this to mana
 
 ## Install
 
-On Windows
+The binary is very huge(12MB) since it includes Runtime, so I'm not going to provide a exe file to install. You can clone this repo and use `build.ps1` to generate binaries for yourself.
 
-```bash
-scoop install "https://raw.githubusercontent.com/cryptic-resolver/cr_Go/master/install/cryptic-resolver.json"
-```
-
-On Linux or macOS
-```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/cryptic-resolver/cr_Go/master/install/i.sh)"
-```
-
-<br>
-
-Or just manually install from the [releases](https://github.com/cryptic-resolver/cr_Go/releases) page.
-
-Tested well on `Windows 11` and `Ubuntu`.
 
 <br>
 
